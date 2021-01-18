@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use MediaWiki\MediaWikiServices;
 
 class MessageCachePerformance {
 
@@ -58,7 +59,7 @@ class MessageCachePerformance {
 	private const BLANK_MSG_KEY = 'fandom-msg-cache-performance-blank';
 
 	/**
-	 * Map of known message keys defined by core/extensions (key => true)
+	 * Map of known message keys defined by core/extensions (key with initial uppercase letter => true)
 	 * @var bool[] $knownMsgKeys
 	 */
 	private static $knownMsgKeys;
@@ -84,10 +85,11 @@ class MessageCachePerformance {
 		}
 
 		$knownMsgKeys = self::getKnownMsgKeys();
+		$ucKey = MediaWikiServices::getInstance()->getContentLanguage()->ucfirst( $lcKey );
 
 		foreach ( self::NOT_CUSTOMIZABLE_POTENTIALLY_EXISTING_MSG_PREFIXES as $prefix ) {
 			// The message isn't defined in code and cannot be customized
-			if ( !isset( $knownMsgKeys[$lcKey] ) && strpos( $lcKey, $prefix ) === 0 ) {
+			if ( !isset( $knownMsgKeys[$ucKey] ) && strpos( $lcKey, $prefix ) === 0 ) {
 				$lcKey = self::BLANK_MSG_KEY;
 				return;
 			}
@@ -96,7 +98,7 @@ class MessageCachePerformance {
 
 	/**
 	 * Preload all known message keys defined by core/extensions
-	 * @return bool[] map of message key => true
+	 * @return bool[] map of message key with initial uppercase letter => true
 	 */
 	private static function getKnownMsgKeys(): array {
 		if ( !self::$knownMsgKeys ) {
