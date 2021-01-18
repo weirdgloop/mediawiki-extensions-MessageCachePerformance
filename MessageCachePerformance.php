@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,6 @@ class MessageCachePerformance {
 		'minerva-action-',
 		'exvius-view-',
 		'exvius-action-',
-		'nstab-',
 
 		// LanguageConverter
 		'conversion-ns',
@@ -50,12 +49,10 @@ class MessageCachePerformance {
 		// Linker
 		'tooltip-',
 		'accesskey-',
-	];
 
-	/**
-	 * Blank message key to use as an override for messages that cannot exist
-	 */
-	private const BLANK_MSG_KEY = 'fandom-msg-cache-performance-blank';
+		// SkinTemplate namespace tab navigation
+		'nstab-',
+	];
 
 	/**
 	 * Map of known message keys defined by core/extensions (key => true)
@@ -69,17 +66,18 @@ class MessageCachePerformance {
 	 * and are not customized on the wiki trigger memcached/APCu lookups. This can be quite expensive when many wikis
 	 * and messages are involved.
 	 *
-	 * This hook catches the most common messages being looked up that are known not to exist, and redirects them to
-	 * use a blank message defined in code instead.
+	 * This hook catches the most common messages being looked up that are known not to exist, and short-circuits the
+	 * MessageCache lookup by explicitly designating them as nonexistent.
+	 *
+	 * @see MessageCache::get()
 	 *
 	 * @param string &$lcKey message key being looked up
 	 */
-	public static function onMessageCacheGet( &$lcKey ): void {
+	public static function onMessageCacheGet( &$lcKey ): bool {
 		foreach ( self::NOT_CUSTOMIZABLE_NONEXISTENT_MSG_PREFIXES as $prefix ) {
 			// The message is known to not exist in code and cannot be customized
 			if ( strpos( $lcKey, $prefix ) === 0 ) {
-				$lcKey = self::BLANK_MSG_KEY;
-				return;
+				return false;
 			}
 		}
 
@@ -88,10 +86,11 @@ class MessageCachePerformance {
 		foreach ( self::NOT_CUSTOMIZABLE_POTENTIALLY_EXISTING_MSG_PREFIXES as $prefix ) {
 			// The message isn't defined in code and cannot be customized
 			if ( !isset( $knownMsgKeys[$lcKey] ) && strpos( $lcKey, $prefix ) === 0 ) {
-				$lcKey = self::BLANK_MSG_KEY;
-				return;
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	/**
