@@ -1,0 +1,17 @@
+{
+	"name": "MessageCachePerformance",
+	"author": "Fandom, Inc.",
+	"url": "https://github.com/Wikia/MessageCachePerformance",
+	"description": "Avoid redundant MessageCache lookups",
+	"AutoloadClasses": {
+		"MessageCachePerformance": "MessageCachePerformance.php"
+	},
+	"Hooks": {
+		"MessageCache::get": "MessageCachePerformance::onMessageCacheGet"
+	},
+	"MessagesDirs": {
+		"MessageCachePerformance": "i18n"
+	},
+	"manifest_version": 2,
+	"license-name": "Apache-2.0"
+}
