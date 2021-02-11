@@ -13,12 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use AhoCorasick\MultiStringMatcher;
+
 class MessageCachePerformance {
 
 	/**
 	 * Prefixes for messages that are known not to exist in core/extensions and are not user-customizable.
 	 */
-	private const NOT_CUSTOMIZABLE_NONEXISTENT_MSG_PREFIXES = [
+	private const NONEXISTENT_MSG_PREFIXES = [
 		// Special:SpecialPages and GlobalShortcuts
 		'specialpages-specialpagegroup-',
 
@@ -40,12 +42,7 @@ class MessageCachePerformance {
 
 		// LanguageConverter
 		'conversion-ns',
-	];
 
-	/**
-	 * Prefixes for messages that might exist in core/extensions but are not user-customizable.
-	 */
-	private const NOT_CUSTOMIZABLE_POTENTIALLY_EXISTING_MSG_PREFIXES = [
 		// Linker
 		'tooltip-',
 		'accesskey-',
@@ -61,6 +58,12 @@ class MessageCachePerformance {
 	private static $knownMsgKeys;
 
 	/**
+	 * Matcher for NONEXISTENT_MSG_PREFIXES
+	 * @var MultiStringMatcher $notExistentMsgMatcher
+	 */
+	private static $notExistentMsgMatcher;
+
+	/**
 	 * Hook: MessageCache::get
 	 * Due to https://phabricator.wikimedia.org/T193271, lookups for messages that are not defined in core/extensions
 	 * and are not customized on the wiki trigger memcached/APCu lookups. This can be quite expensive when many wikis
@@ -74,20 +77,16 @@ class MessageCachePerformance {
 	 * @param string &$lcKey message key being looked up
 	 */
 	public static function onMessageCacheGet( &$lcKey ): bool {
-		foreach ( self::NOT_CUSTOMIZABLE_NONEXISTENT_MSG_PREFIXES as $prefix ) {
-			// The message is known to not exist in code and cannot be customized
-			if ( strpos( $lcKey, $prefix ) === 0 ) {
-				return false;
-			}
-		}
-
 		$knownMsgKeys = self::getKnownMsgKeys();
 
-		foreach ( self::NOT_CUSTOMIZABLE_POTENTIALLY_EXISTING_MSG_PREFIXES as $prefix ) {
-			// The message isn't defined in code and cannot be customized
-			if ( !isset( $knownMsgKeys[$lcKey] ) && strpos( $lcKey, $prefix ) === 0 ) {
-				return false;
-			}
+		// Message is known to exist in code - nothing to do.
+		if ( isset( $knownMsgKeys[$lcKey] ) ) {
+			return true;
+		}
+
+		// The message is known to not exist in code and cannot be customized
+		if ( self::getNotExistentMsgMatcher()->searchIn( $lcKey ) ) {
+			return false;
 		}
 
 		return true;
@@ -104,5 +103,13 @@ class MessageCachePerformance {
 		}
 
 		return self::$knownMsgKeys;
+	}
+
+	private static function getNotExistentMsgMatcher(): MultiStringMatcher {
+		if ( !self::$notExistentMsgMatcher ) {
+			self::$notExistentMsgMatcher = new MultiStringMatcher( self::NONEXISTENT_MSG_PREFIXES );
+		}
+
+		return self::$notExistentMsgMatcher;
 	}
 }
