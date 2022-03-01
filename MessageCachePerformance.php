@@ -73,6 +73,9 @@ class MessageCachePerformance {
 	 * This hook catches the most common messages being looked up that are known not to exist, and short-circuits the
 	 * MessageCache lookup by explicitly designating them as nonexistent.
 	 *
+	 * See: https://phabricator.wikimedia.org/T193271
+	 * See also: https://phabricator.wikimedia.org/T275033
+	 *
 	 * @param string &$lcKey message key being looked up
 	 * @see MessageCache::get()
 	 *
