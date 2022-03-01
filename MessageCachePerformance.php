@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use AhoCorasick\MultiStringMatcher;
+use MediaWiki\MediaWikiServices;
 
 class MessageCachePerformance {
 
@@ -72,9 +73,9 @@ class MessageCachePerformance {
 	 * This hook catches the most common messages being looked up that are known not to exist, and short-circuits the
 	 * MessageCache lookup by explicitly designating them as nonexistent.
 	 *
+	 * @param string &$lcKey message key being looked up
 	 * @see MessageCache::get()
 	 *
-	 * @param string &$lcKey message key being looked up
 	 */
 	public static function onMessageCacheGet( &$lcKey ): bool {
 		$knownMsgKeys = self::getKnownMsgKeys();
@@ -99,7 +100,9 @@ class MessageCachePerformance {
 	private static function getKnownMsgKeys(): array {
 		if ( !self::$knownMsgKeys ) {
 			global $wgLanguageCode;
-			self::$knownMsgKeys = array_flip( Language::getMessageKeysFor( $wgLanguageCode ) );
+			$localisationCache = MediaWikiServices::getInstance()->getLocalisationCache();
+			self::$knownMsgKeys =
+				array_flip( $localisationCache->getSubitemList( $wgLanguageCode, 'messages' ) );
 		}
 
 		return self::$knownMsgKeys;
