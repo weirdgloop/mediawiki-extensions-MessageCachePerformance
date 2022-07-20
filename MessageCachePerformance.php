@@ -26,20 +26,13 @@ class MessageCachePerformance {
 		'specialpages-specialpagegroup-',
 
 		// Used by SkinTemplate for Vector <-> Monobook B/C
-		'oasis-view-',
-		'oasis-action-',
 		'apioutput-view-',
 		'fallback-view-',
 		'mobileve-view-',
 		'fandommobile-view-',
-		'hydra-view-',
-		'hydra-action-',
-		'hydradark-view-',
-		'hydradark-action-',
-		'minerva-view-',
-		'minerva-action-',
-		'exvius-view-',
-		'exvius-action-',
+		'fandommobile-action-',
+		'fandomdesktop-view-',
+		'fandomdesktop-action-',
 
 		// LanguageConverter
 		'conversion-ns',
