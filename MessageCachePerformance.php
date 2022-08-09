@@ -28,11 +28,16 @@ class MessageCachePerformance {
 		// Used by SkinTemplate for Vector <-> Monobook B/C
 		'apioutput-view-',
 		'fallback-view-',
+		/* WGL - Leave out Fandom-specific keys.
 		'mobileve-view-',
 		'fandommobile-view-',
 		'fandommobile-action-',
 		'fandomdesktop-view-',
 		'fandomdesktop-action-',
+		*/
+		// WGL - Add keys for our setup.
+		'minerva-view-',
+		'minerva-action-',
 
 		// LanguageConverter
 		'conversion-ns',
