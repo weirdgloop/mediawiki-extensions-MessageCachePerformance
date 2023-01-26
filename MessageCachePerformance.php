@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use AhoCorasick\MultiStringMatcher;
+use MediaWiki\MediaWikiServices;
 
 class MessageCachePerformance {
 
@@ -25,20 +26,13 @@ class MessageCachePerformance {
 		'specialpages-specialpagegroup-',
 
 		// Used by SkinTemplate for Vector <-> Monobook B/C
-		'oasis-view-',
-		'oasis-action-',
 		'apioutput-view-',
 		'fallback-view-',
 		'mobileve-view-',
 		'fandommobile-view-',
-		'hydra-view-',
-		'hydra-action-',
-		'hydradark-view-',
-		'hydradark-action-',
-		'minerva-view-',
-		'minerva-action-',
-		'exvius-view-',
-		'exvius-action-',
+		'fandommobile-action-',
+		'fandomdesktop-view-',
+		'fandomdesktop-action-',
 
 		// LanguageConverter
 		'conversion-ns',
@@ -72,9 +66,12 @@ class MessageCachePerformance {
 	 * This hook catches the most common messages being looked up that are known not to exist, and short-circuits the
 	 * MessageCache lookup by explicitly designating them as nonexistent.
 	 *
-	 * @see MessageCache::get()
+	 * See: https://phabricator.wikimedia.org/T193271
+	 * See also: https://phabricator.wikimedia.org/T275033
 	 *
 	 * @param string &$lcKey message key being looked up
+	 * @see MessageCache::get()
+	 *
 	 */
 	public static function onMessageCacheGet( &$lcKey ): bool {
 		$knownMsgKeys = self::getKnownMsgKeys();
@@ -99,7 +96,9 @@ class MessageCachePerformance {
 	private static function getKnownMsgKeys(): array {
 		if ( !self::$knownMsgKeys ) {
 			global $wgLanguageCode;
-			self::$knownMsgKeys = array_flip( Language::getMessageKeysFor( $wgLanguageCode ) );
+			$localisationCache = MediaWikiServices::getInstance()->getLocalisationCache();
+			self::$knownMsgKeys =
+				array_flip( $localisationCache->getSubitemList( $wgLanguageCode, 'messages' ) );
 		}
 
 		return self::$knownMsgKeys;
