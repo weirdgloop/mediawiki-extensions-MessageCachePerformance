@@ -3,11 +3,47 @@
 	"author": "Fandom, Inc.",
 	"url": "https://github.com/Wikia/MessageCachePerformance",
 	"description": "Avoid redundant MessageCache lookups",
-	"AutoloadClasses": {
-		"MessageCachePerformance": "MessageCachePerformance.php"
+	"AutoloadNamespaces": {
+		"MessageCachePerformance\\": "src"
 	},
 	"Hooks": {
-		"MessageCache::get": "MessageCachePerformance::onMessageCacheGet"
+		"MessageCache::get": "MessageCachePerformance",
+		"AfterFinalPageOutput": "MessageCachePerformance"
+	},
+	"HookHandlers": {
+		"MessageCachePerformance": {
+			"class": "MessageCachePerformance\\Hooks",
+			"services": ["MessageCachePerformanceConfig", "LocalisationCache", "MessageCachePerformanceMatcher"]
+		}
+	},
+	"ServiceWiringFiles": ["ServiceWiring.php"],
+	"config_prefix": "mcp",
+	"config": {
+		"MessageCachePerformanceEnableDebug": {
+			"value": false,
+			"path": false,
+			"description": "Enables debug information inclusion into Parser output",
+			"public": true
+		},
+		"MessageCachePerformanceMsgPrefixes": {
+			"value": [
+				"specialpages-specialpagegroup-",
+				"apioutput-view-",
+				"fallback-view-",
+				"mobileve-view-",
+				"fandommobile-view-",
+				"fandommobile-action-",
+				"fandomdesktop-view-",
+				"fandomdesktop-action-",
+				"conversion-ns",
+				"tooltip-",
+				"accesskey-",
+				"nstab-"
+			],
+			"path": false,
+			"description": "Prefixes for messages that are known not to exist in core/extensions and are not user-customizable",
+			"public": true
+		}
 	},
 	"manifest_version": 2,
 	"license-name": "Apache-2.0"
