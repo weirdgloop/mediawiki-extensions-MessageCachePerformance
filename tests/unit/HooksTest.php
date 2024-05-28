@@ -4,6 +4,7 @@ namespace MessageCachePerformance;
 
 use Config;
 use LocalisationCache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HooksTest extends TestCase {
@@ -67,9 +68,7 @@ class HooksTest extends TestCase {
 		$this->assertFalse( $result );
 	}
 
-	/**
-	 * @dataProvider matcherDataProvider
-	 */
+	#[DataProvider( 'matcherDataProvider' )]
 	public function testShouldReturnFalseUnknownButMatchedOnPrefixKey(
 		array $matcher,
 		array $keysAndResult
