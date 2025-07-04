@@ -40,6 +40,7 @@
 				"accesskey-",
 				"nstab-"
 			],
+			"merge_strategy": "provide_default",
 			"path": false,
 			"description": "Prefixes for messages that are known not to exist in core/extensions and are not user-customizable",
 			"public": true
